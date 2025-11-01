@@ -1,6 +1,8 @@
 package com.gustavo.springsecurity.entities;
 
+import com.gustavo.springsecurity.dto.LoginRequestDTO;
 import jakarta.persistence.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Objects;
 import java.util.Set;
@@ -54,5 +56,13 @@ public class User {
 
     public Set<Role> getRoles() {
         return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public boolean isLoginCorrect(LoginRequestDTO loginRequestDTO, PasswordEncoder passwordEncoder) {
+        return passwordEncoder.matches(loginRequestDTO.password(), this.password);
     }
 }
