@@ -2,6 +2,7 @@ package com.gustavo.springsecurity.controller;
 
 import com.gustavo.springsecurity.dto.LoginRequestDTO;
 import com.gustavo.springsecurity.dto.LoginResponseDTO;
+import com.gustavo.springsecurity.entities.Role;
 import com.gustavo.springsecurity.entities.User;
 import com.gustavo.springsecurity.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
+import java.util.stream.Collectors;
 
 @RestController
 public class Tokencontroller {
@@ -43,12 +45,19 @@ public class Tokencontroller {
         var now = Instant.now();
         var expiresIn = 300L;
 
+        var scopes = user.get()
+                .getRoles()
+                .stream()
+                .map(Role::getName)
+                .collect(Collectors.joining(" "));
+
         var claims = JwtClaimsSet
                 .builder()
                 .issuer("backend-Spring-Security")
                 .subject(user.get().getUserId().toString())
                 .expiresAt(now.plusSeconds(expiresIn))
                 .issuedAt(now)
+                .claim("scope", scopes)
                 .build();
 
         var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
